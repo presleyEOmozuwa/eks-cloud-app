@@ -1,0 +1,43 @@
+name: Destroy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      role:
+        required: true
+        type: string   
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./infra/envs/${{ inputs.environment }} 
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.role }}
+          aws-region: us-east-1   
+      
+      - name: Configure Terraform
+        uses: hashicorp/setup-terraform@v3
+      
+      - name: Terraform init
+        run: terraform init
+
+      - run: |
+          terraform destroy -auto-approve \
+            -var "environment=${{ inputs.environment }}"

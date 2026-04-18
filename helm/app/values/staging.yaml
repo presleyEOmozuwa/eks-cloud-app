@@ -1,0 +1,8 @@
+backend:
+  replicaCount: 3
+
+frontend:
+  replicaCount: 1
+
+ingress:
+  host: staging.myapp.com

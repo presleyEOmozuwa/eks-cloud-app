@@ -1,0 +1,23 @@
+backend:
+  image:
+    repository: ""
+    tag: ""
+
+  replicaCount: 1
+
+  service:
+    port: 5000
+
+frontend:
+  image:
+    repository: ""
+    tag: ""
+
+  replicaCount: 1
+
+  service:
+    port: 80
+
+ingress:
+  enabled: true
+  host: example.com

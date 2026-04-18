@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      cluster_name:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      backend_repo:
+        required: true
+        type: string
+      frontend_repo:
+        required: true
+        type: string
+      role:
+        required: true
+        type: string   
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.role }}
+          aws-region: us-east-1
+      
+      - name: Configure kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region us-east-1 \
+            --name ${{ inputs.cluster_name }}
+
+      - name: Helm Upgrade/Install
+        run: |
+          helm upgrade --install my-app ./helm/app \
+            -f helm/app/values/${{ inputs.environment }}.yaml \
+            --set backend.image.repository=${{ inputs.backend_repo }} \
+            --set backend.image.tag=${{ inputs.image_tag }} \
+            --set frontend.image.repository=${{ inputs.frontend_repo }} \
+            --set frontend.image.tag=${{ inputs.image_tag }}

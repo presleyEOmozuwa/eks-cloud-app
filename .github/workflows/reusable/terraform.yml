@@ -1,0 +1,71 @@
+name: Terraform
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    outputs:
+      backend_repo:
+        value: ${{ jobs.tf.outputs.backend_repo }}
+      frontend_repo:
+        value: ${{ jobs.tf.outputs.frontend_repo }}
+      role: ${{jobs.tf.outputs.role}}  
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./infra/envs/${{ inputs.environment }} 
+
+    outputs:
+      backend_repo: ${{ steps.out.outputs.backend_repo }}
+      frontend_repo: ${{ steps.out.outputs.frontend_repo }}
+      cluster_name: ${{ steps.out.outputs.cluster_name }}
+      role: ${{ steps.role.outputs.role }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: us-east-1   
+        
+      - name: Configure Terraform  
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate -var "environment=${{ inputs.environment }}"   
+
+      - name: Terraform Plan
+        run: terraform plan -var "environment=${{ inputs.environment }}"    
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve \
+            -var "environment=${{ inputs.environment }}"
+
+      - name: Export ECR URLs output
+        id: out
+        run: |
+          echo "backend_repo=$(terraform output -raw backend_repo_url -no-color)" >> $GITHUB_OUTPUT
+          echo "frontend_repo=$(terraform output -raw frontend_repo_url -no-color)" >> $GITHUB_OUTPUT
+          echo "cluster_name=$(terraform output -raw cluster_name -no-color)" >> $GITHUB_OUTPUT
+
+      - name: Export role output based on branch
+        id: role
+        run: |
+          echo "role=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT    

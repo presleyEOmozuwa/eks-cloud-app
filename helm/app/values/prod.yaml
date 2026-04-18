@@ -1,0 +1,8 @@
+backend:
+  replicaCount: 3
+
+frontend:
+  replicaCount: 2
+
+ingress:
+  host: myapp.com

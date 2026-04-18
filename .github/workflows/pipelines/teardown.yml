@@ -1,0 +1,19 @@
+name: Teardown Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy (dev/staging/prod)"
+        required: true
+      confirm:
+        description: "Type DESTROY to confirm"
+        required: true
+
+jobs:
+
+  destroy:
+    if: ${{ github.event.inputs.confirm == 'DESTROY' }}
+    uses: ./.github/workflows/reusable/destroy.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
