@@ -23,9 +23,6 @@ jobs:
   tf:
     runs-on: ubuntu-latest
 
-    outputs:
-      role: ${{ steps.role.outputs.role }}
-
     defaults:
       run:
         working-directory: ./infra/envs/${{ inputs.environment }} 
