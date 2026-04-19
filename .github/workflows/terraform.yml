@@ -11,7 +11,9 @@ on:
         value: ${{ jobs.tf.outputs.backend_repo }}
       frontend_repo:
         value: ${{ jobs.tf.outputs.frontend_repo }}
-      role: ${{jobs.tf.outputs.role}}  
+      role: 
+        value: ${{jobs.tf.outputs.role}} 
+        
 
 permissions:
   id-token: write
@@ -20,6 +22,9 @@ permissions:
 jobs:
   tf:
     runs-on: ubuntu-latest
+
+    outputs:
+      role: ${{ steps.role.outputs.role }}
 
     defaults:
       run:
