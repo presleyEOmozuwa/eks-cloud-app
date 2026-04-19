@@ -11,7 +11,11 @@ on:
         value: ${{ jobs.tf.outputs.backend_repo }}
       frontend_repo:
         value: ${{ jobs.tf.outputs.frontend_repo }}
-      role: ${{jobs.tf.outputs.role}}  
+      cluster_name: 
+        value: ${{ jobs.tf.outputs.cluster_name }}  
+      role: 
+        value: ${{ jobs.tf.outputs.role }} 
+        
 
 permissions:
   id-token: write
