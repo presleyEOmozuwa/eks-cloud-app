@@ -23,7 +23,7 @@ locals {
       env_level  = "staging"
     }
     prod = {
-      branch     = "main"
+      branch     = "prod"
       namespace  = "prod"
       env_level  = "prod"
     }
