@@ -7,13 +7,13 @@ on:
 jobs:
 
   terraform:
-    uses: .github/workflows/reusable/terraform.yml
+    uses: ./.github/workflows/terraform.yml
     with:
       environment: staging
 
   build:
     needs: terraform
-    uses: .github/workflows/reusable/build.yml
+    uses: ./.github/workflows/reusable/build.yml
     with:
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}
       frontend_repo: ${{ needs.terraform.outputs.frontend_repo }}
@@ -21,7 +21,7 @@ jobs:
 
   deploy:
     needs: [terraform, build]
-    uses: .github/workflows/reusable/deploy.yml
+    uses: ./.github/workflows/reusable/deploy.yml
     with:
       environment: staging
       cluster_name: ${{ needs.terraform.outputs.cluster_name }}
