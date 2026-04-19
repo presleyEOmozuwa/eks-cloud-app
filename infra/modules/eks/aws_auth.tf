@@ -330,6 +330,7 @@ resource "kubernetes_role_binding_v1" "deploy" {
     kind = "User"
 
     # EKS Access Entry maps IAM identity → Kubernetes user identity
+    
     name = aws_iam_role.cicd_deploy[each.key].arn
   }
 
