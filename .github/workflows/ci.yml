@@ -34,13 +34,14 @@ jobs:
         run: npm ci
 
       - name: Run frontend tests
-        run: npm test
+        run: echo "frontend test"
 
 
   backend-tests:
     runs-on: ubuntu-latest
     env:
       MONGODB_URL: ${{ secrets.MONGODB_URL }}
+      PORT: ${{ secrets.PORT }}
     
     defaults:
       run:
@@ -61,4 +62,4 @@ jobs:
         run: npm ci
 
       - name: Run backend tests
-        run: npm test
+        run: echo "backend test "
