@@ -7,7 +7,7 @@ on:
 jobs:
 
   terraform:
-    uses: .github/workflows/reusable/terraform.yml
+    uses: .github/workflows/terraform.yml
     with:
       environment: staging
 
