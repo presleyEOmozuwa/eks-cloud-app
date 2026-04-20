@@ -14,7 +14,7 @@ on:
       cluster_name: 
         value: ${{ jobs.tf.outputs.cluster_name }}  
       role: 
-        value: ${{ jobs.tf.outputs.role }} 
+        value: ${{ jobs.roleId.outputs.deploy_role_arn }} 
         
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
       backend_repo: ${{ steps.out.outputs.backend_repo }}
       frontend_repo: ${{ steps.out.outputs.frontend_repo }}
       cluster_name: ${{ steps.out.outputs.cluster_name }}
-      role: ${{ steps.role.outputs.role }}
+      role: ${{ steps.roleId.outputs.deploy_role_arn }}
 
     steps:
       - name: Checkout repo
@@ -70,6 +70,6 @@ jobs:
           echo "cluster_name=$(terraform output -raw cluster_name -no-color)" >> $GITHUB_OUTPUT
 
       - name: Export role output based on branch
-        id: role
+        id: roleId
         run: |
-          echo "role=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT    
+          echo "deploy_role_arn=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT    
