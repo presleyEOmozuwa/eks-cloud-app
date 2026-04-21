@@ -18,7 +18,7 @@ module "vpc" {
 module "eks" {
   source = "../../modules/eks"
   subnet_ids = module.vpc.subnet_ids
-  cluster_name = var.cluster_name
+  cluster_name = "ekscluster-${var.environment}"
   project = var.project
   region = var.region
   github_org = var.github_org
