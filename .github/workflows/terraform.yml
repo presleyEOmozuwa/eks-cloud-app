@@ -55,7 +55,7 @@ jobs:
         run: terraform validate  
 
       - name: Terraform Plan
-        run: terraform plan -var "environment=${{ inputs.environment }}"    
+        run: terraform plan   
 
       - name: Terraform Apply
         run: |
