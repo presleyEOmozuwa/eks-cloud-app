@@ -43,7 +43,16 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
-          aws-region: us-east-1   
+          aws-region: us-east-1
+
+      - name: Debug secret
+        run: |
+          if [ -z "${{ secrets.AWS_BOOTSTRAP_ROLE }}" ]; then
+            echo "SECRET IS EMPTY"
+            exit 1
+          else
+            echo "SECRET EXISTS"
+          fi       
         
       - name: Configure Terraform  
         uses: hashicorp/setup-terraform@v3
