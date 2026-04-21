@@ -27,7 +27,7 @@ jobs:
     needs: [terraform, build]
     uses: ./.github/workflows/deploy.yml
     with:
-      environment: prod
+      environment: "prod"
       cluster_name: ${{ needs.terraform.outputs.cluster_name }}
       image_tag: ${{ needs.build.outputs.image_tag }}
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}

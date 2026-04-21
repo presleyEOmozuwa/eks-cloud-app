@@ -14,7 +14,7 @@ on:
       cluster_name: 
         value: ${{ jobs.tf.outputs.cluster_name }}  
       role: 
-        value: ${{ jobs.roleId.outputs.deploy_role_arn }} 
+        value: ${{ jobs.tf.outputs.deploy_role_arn }} 
         
 
 permissions:
@@ -43,16 +43,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
-          aws-region: us-east-1
-
-      - name: Debug secret
-        run: |
-          if [ -z "${{ secrets.AWS_BOOTSTRAP_ROLE }}" ]; then
-            echo "SECRET IS EMPTY"
-            exit 1
-          else
-            echo "SECRET EXISTS"
-          fi       
+          aws-region: us-east-1     
         
       - name: Configure Terraform  
         uses: hashicorp/setup-terraform@v3
