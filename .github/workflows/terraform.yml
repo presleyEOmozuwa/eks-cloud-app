@@ -55,7 +55,7 @@ jobs:
         run: terraform validate  
 
       - name: Terraform Plan
-        run: terraform plan -var "environment=${{ inputs.environment }}" -input=false  -var-file="./infra/envs/${{ inputs.environment }}/terraform.tfvars" 
+        run: terraform plan -var "environment=${{ inputs.environment }}" -input=false  -var-file="**/infra/envs/${{ inputs.environment }}/terraform.tfvars" 
 
       - name: Terraform Apply
         run: |
