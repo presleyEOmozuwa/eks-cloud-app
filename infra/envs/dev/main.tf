@@ -18,8 +18,6 @@ module "vpc" {
 module "eks" {
   source = "../../modules/eks"
   subnet_ids = module.vpc.subnet_ids
-  client_name = var.client_name
-  server_name = var.server_name
   cluster_name = var.cluster_name
   project = var.project
   region = var.region
