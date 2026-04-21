@@ -13,7 +13,7 @@ jobs:
   terraform:
     uses: ./.github/workflows/terraform.yml
     with:
-      environment: staging
+      environment: "staging"
 
   build:
     needs: terraform
