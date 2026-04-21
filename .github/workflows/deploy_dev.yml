@@ -13,7 +13,7 @@ jobs:
   terraform:
     uses: ./.github/workflows/terraform.yml
     with:
-      environment: dev
+      environment: "dev"
     secrets: inherit
   build:
     needs: terraform
