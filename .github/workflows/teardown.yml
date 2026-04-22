@@ -21,4 +21,4 @@ jobs:
     uses: ./.github/workflows/destroy.yml
     with:
       environment: ${{ github.event.inputs.environment }}
-      destroy_role: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
+    secrets: inherit
