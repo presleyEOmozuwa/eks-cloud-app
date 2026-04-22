@@ -36,7 +36,7 @@ jobs:
       role: ${{ steps.role_ID.outputs.deploy_role_arn }}
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Generate terraform.tfvars
