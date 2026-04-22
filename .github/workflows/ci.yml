@@ -62,4 +62,4 @@ jobs:
         run: npm ci
 
       - name: Run backend tests
-        run: echo "backend test "
+        run: echo "backend test"
