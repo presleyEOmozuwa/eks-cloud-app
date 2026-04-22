@@ -25,7 +25,7 @@ jobs:
 
       - name: Generate terraform.tfvars
         run: |
-          cat <<EOF > terraform.tfvars
+          cat > terraform.tfvars <<EOF
           project = "${{ secrets.TF_VAR_PROJECT }}"
           region = "${{ secrets.TF_VAR_REGION }}"
           github_org = "${{ secrets.TF_VAR_GITHUB_ORG }}"
@@ -62,7 +62,8 @@ jobs:
       
       - name: Terraform Plan
         run: terraform plan -var "environment=${{ inputs.environment }}" -input=false
-      
-      - run: |
+        
+      - name: Terraform Destroy
+        run: |
           terraform destroy -auto-approve \
             -var "environment=${{ inputs.environment }}"
