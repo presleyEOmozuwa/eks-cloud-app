@@ -39,30 +39,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate terraform.tfvars
-        run: |
-          cat <<EOF > terraform.tfvars
-          project = "${{ secrets.TF_VAR_PROJECT }}"
-          region = "${{ secrets.TF_VAR_REGION }}"
-          github_org = "${{ secrets.TF_VAR_GITHUB_ORG }}"
-          github_repo = "${{ secrets.TF_VAR_GITHUB_REPO }}"
-          subnet_ids = "${{ secrets.TF_VAR_SUBNET_IDS }}"
-          public_subnet_tags_1 = {
-            Name = "public-subnet-1-${{ inputs.environment }}"
-          }
-          public_subnet_tags_2 = {
-            Name = "public-subnet-2-${{ inputs.environment }}"
-          }
-          igw_tags = {
-            Name = "igw-${{ inputs.environment }}"
-          }
-          rt_tags = {
-            Name = "rt-${{ inputs.environment }}"
-          }
-          sg_tags = {
-            Name = "sg-${{ inputs.environment }}"
-          }
-          EOF
+      - name:  Terraform Env Variables
+        env:
+          TF_VAR_PROJECT: ${{ secrets.TF_VAR_PROJECT }}
+          TF_VAR_REGION: ${{ secrets.TF_VAR_REGION }}
+          TF_VAR_GITHUB_ORG: ${{ secrets.TF_VAR_GITHUB_ORG }}
+          TF_VAR_GITHUB_REPO: ${{ secrets.TF_VAR_GITHUB_REPO }}
+          TF_VAR_SUBNET_IDS: ${{ secrets.TF_VAR_SUBNET_IDS }}
+          
+          TF_VAR_public_subnet_tags_1: '{ "Name": "public-subnet-1-${{ inputs.environment }}" }'
+          TF_VAR_public_subnet_tags_2: '{ "Name": "public-subnet-2-${{ inputs.environment }}" }'
+          TF_VAR_igw_tags: '{ "Name": "igw-${{ inputs.environment }}" }'
+          TF_VAR_rt_tags: '{ "Name": "rt-${{ inputs.environment }}" }'
+          TF_VAR_sg_tags: '{ "Name": "sg-${{ inputs.environment }}" }'  
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
