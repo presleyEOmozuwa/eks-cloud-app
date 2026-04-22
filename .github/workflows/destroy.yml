@@ -26,9 +26,9 @@ jobs:
       - name: Generate terraform.tfvars
         run: |
           cat <<EOF > terraform.tfvars
-          project     = "${{ secrets.TF_VAR_PROJECT }}"
-          region      = "${{ secrets.TF_VAR_REGION }}"
-          github_org  = "${{ secrets.TF_VAR_GITHUB_ORG }}"
+          project = "${{ secrets.TF_VAR_PROJECT }}"
+          region = "${{ secrets.TF_VAR_REGION }}"
+          github_org = "${{ secrets.TF_VAR_GITHUB_ORG }}"
           github_repo = "${{ secrets.TF_VAR_GITHUB_REPO }}"
           subnet_ids = ${{ secrets.TF_VAR_SUBNET_IDS }}
           public_subnet_tags_1 = {
