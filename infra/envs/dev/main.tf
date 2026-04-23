@@ -25,3 +25,11 @@ module "eks" {
   github_repo = var.github_repo
   environment = var.environment
 }
+
+module "k8s" {
+  source = "./k8s"
+  endpoint       = module.eks.endpoint
+  eks_cluster_ca = module.eks.cluster_ca
+  cluster_name   = module.eks.cluster_name
+  depends_on = [module.eks]  
+}
