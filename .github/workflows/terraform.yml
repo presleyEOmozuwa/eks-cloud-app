@@ -24,6 +24,17 @@ permissions:
 jobs:
   tf:
     runs-on: ubuntu-latest
+    env:
+      TF_VAR_project: ${{ secrets.TF_VAR_PROJECT }}
+      TF_VAR_region: ${{ secrets.TF_VAR_REGION }}
+      TF_VAR_github_org: ${{ secrets.TF_VAR_GITHUB_ORG }}
+      TF_VAR_github_repo: ${{ secrets.TF_VAR_GITHUB_REPO }}
+      TF_VAR_subnet_ids: ${{ secrets.TF_VAR_SUBNET_IDS }}
+      TF_VAR_public_subnet_tags_1: '{ "Name": "public-subnet-1-${{ inputs.environment }}" }'
+      TF_VAR_public_subnet_tags_2: '{ "Name": "public-subnet-2-${{ inputs.environment }}" }'
+      TF_VAR_igw_tags: '{ "Name": "igw-${{ inputs.environment }}" }'
+      TF_VAR_rt_tags: '{ "Name": "rt-${{ inputs.environment }}" }'
+      TF_VAR_sg_tags: '{ "Name": "sg-${{ inputs.environment }}" }'
 
     defaults:
       run:
@@ -55,24 +66,12 @@ jobs:
         run: terraform validate  
 
       - name: Terraform Plan
-        env:
-          TF_VAR_project: ${{ secrets.TF_VAR_PROJECT }}
-          TF_VAR_region: ${{ secrets.TF_VAR_REGION }}
-          TF_VAR_github_org: ${{ secrets.TF_VAR_GITHUB_ORG }}
-          TF_VAR_github_repo: ${{ secrets.TF_VAR_GITHUB_REPO }}
-          TF_VAR_subnet_ids: ${{ secrets.TF_VAR_SUBNET_IDS }}
-          
-          TF_VAR_public_subnet_tags_1: '{ "Name": "public-subnet-1-${{ inputs.environment }}" }'
-          TF_VAR_public_subnet_tags_2: '{ "Name": "public-subnet-2-${{ inputs.environment }}" }'
-          TF_VAR_igw_tags: '{ "Name": "igw-${{ inputs.environment }}" }'
-          TF_VAR_rt_tags: '{ "Name": "rt-${{ inputs.environment }}" }'
-          TF_VAR_sg_tags: '{ "Name": "sg-${{ inputs.environment }}" }'
         run: terraform plan -var "environment=${{ inputs.environment }}" -input=false
           
       - name: Terraform Apply
         run: |
           terraform apply -auto-approve \
-            -var "environment=${{ inputs.environment }}"
+            -var "environment=${{ inputs.environment }}" -input=false
 
       - name: Export ECR URLs output
         id: out
