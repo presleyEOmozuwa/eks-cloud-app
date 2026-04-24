@@ -1,25 +1,25 @@
+// value from iam resource
+variable "eks_role_arn" {
+   type = string
+}
+
+// value from iam resource
+variable "node_role_arn" {
+   type = string
+}
+
+// value from iam resource
+variable "cicd_role_arns" {
+   type = map(string)
+}
+
+// value from vpc resource
 variable "subnet_ids" {
    type = list(string)
 }
 
-variable "cluster_name" {
-   type = string
-}
-
 variable "project" {
   type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "github_org" {
-   type = string
-}
-
-variable "github_repo" {
-   type = string
 }
 
 variable "environment" {

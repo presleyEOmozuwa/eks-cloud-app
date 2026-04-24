@@ -1,10 +1,10 @@
 #############################################
-# PROVIDERS (assumed defined elsewhere)
+# LOCALS
 #############################################
 
-# aws
-# kubernetes
-# tls
+locals {
+  name_prefix = "${var.project}-${var.environment}"
+}
 
 #############################################
 # LOCALS (ENVIRONMENT MODEL)
@@ -28,6 +28,87 @@ locals {
       env_level  = "prod"
     }
   }
+}
+
+#############################################
+# IAM ROLES
+#############################################
+
+# EKS Cluster Role
+resource "aws_iam_role" "eks_role" {
+  name = "${local.name_prefix}-eks-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+# Node Group Role
+resource "aws_iam_role" "node_role" {
+  name = "${local.name_prefix}-node-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Project     = var.project
+    Environment = var.environment
+  }
+}
+
+#############################################
+# IAM POLICY ATTACHMENTS
+#############################################
+
+# Node policies
+resource "aws_iam_role_policy_attachment" "node_worker" {
+  role       = aws_iam_role.node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "ecr" {
+  role       = aws_iam_role.node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+resource "aws_iam_role_policy_attachment" "cni" {
+  role       = aws_iam_role.node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+}
+
+# Cluster policies
+resource "aws_iam_role_policy_attachment" "cluster" {
+  role       = aws_iam_role.eks_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "vpc" {
+  role       = aws_iam_role.eks_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
 
 #############################################
@@ -233,8 +314,8 @@ resource "aws_iam_policy" "cicd_ecr" {
 
         ]
         Resource = [
-          aws_ecr_repository.react_app.arn,
-          aws_ecr_repository.node_app.arn
+          var.reactapp_repo_arn,
+          var.nodeapp_repo_arn
         ]
       }
     ]
@@ -255,85 +336,6 @@ resource "aws_iam_role_policy_attachment" "attach_ecr" {
   policy_arn = aws_iam_policy.cicd_ecr.arn
 }
 
-#############################################
-# EKS ACCESS ENTRY (SINGLE SOURCE OF TRUTH)
-#############################################
-
-resource "aws_eks_access_entry" "cicd" {
-  for_each = aws_iam_role.cicd_deploy
-
-  cluster_name  = aws_eks_cluster.main.name
-  principal_arn = each.value.arn
-  type          = "STANDARD"
-}
-
-#############################################
-# KUBERNETES NAMESPACES (ISOLATION LAYER)
-#############################################
-
-resource "kubernetes_namespace_v1" "env" {
-  for_each = local.environments
-
-  metadata {
-    name = each.value.namespace
-  }
-}
-
-#############################################
-# KUBERNETES RBAC (NO IAM COUPLING)
-#############################################
-
-resource "kubernetes_role_v1" "deploy" {
-  for_each = local.environments
-
-  metadata {
-    name      = "deploy-${each.key}"
-    namespace = each.value.namespace
-  }
-
-  rule {
-    api_groups = ["apps"]
-    resources  = ["deployments", "replicasets"]
-    verbs      = ["get", "list", "watch", "create", "update", "patch"]
-  }
-
-  rule {
-    api_groups = [""]
-    resources  = ["services", "configmaps"]
-    verbs      = ["get", "list", "watch", "create", "update"]
-  }
-}
-
-#############################################
-# ROLE BINDING (CLEAN K8S USER MODEL)
-#############################################
-
-resource "kubernetes_role_binding_v1" "deploy" {
-  for_each = local.environments
-
-  metadata {
-    name      = "deploy-binding-${each.key}"
-    namespace = each.value.namespace
-  }
-
-  role_ref {
-    api_group = "rbac.authorization.k8s.io"
-    kind      = "Role"
-    name      = kubernetes_role_v1.deploy[each.key].metadata[0].name
-  }
-
-  subject {
-    kind = "User"
-
-    # EKS Access Entry maps IAM identity → Kubernetes user identity
-    
-    name = aws_iam_role.cicd_deploy[each.key].arn
-  }
-
-  depends_on = [
-    kubernetes_namespace_v1.env
-  ]
-}
 
 #############################################
 # OPTIONAL: INFRA ROLE (SEPARATION OF DUTY)
