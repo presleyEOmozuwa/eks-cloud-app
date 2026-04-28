@@ -1,17 +1,16 @@
-
 module "iam" {
-  source = "../../modules/iam"
+  source = "../../../modules/iam"
   reactapp_repo_arn = module.ecr.reactapp_repo_arn
   nodeapp_repo_arn = module.ecr.nodeapp_repo_arn
   github_org = var.github_org
-  github_repo = var.github_repo 
+  github_repo = var.github_repo
   project = var.project
   environment = var.environment
   
 }
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "../../../modules/vpc"
   region = var.region
   vpc_tags = {
      Name        = "${var.project}-${var.environment}-vpc"
@@ -27,7 +26,7 @@ module "vpc" {
 }
 
 module "eks" {
-  source = "../../modules/eks"
+  source = "../../../modules/eks"
   subnet_ids = module.vpc.subnet_ids
   cicd_role_arns = module.iam.cicd_role_arns
   eks_role_arn = module.iam.eks_role_arn
@@ -37,12 +36,8 @@ module "eks" {
 }
 
 module "ecr" {
-  source = "../../modules/ecr"
+  source = "../../../modules/ecr"
   project = var.project
   environment = var.environment
 }
 
-module "k8s" {
-  source = "../../modules/k8s"
-  deploy_role_arn = module.iam.deploy_role_arn
-}
