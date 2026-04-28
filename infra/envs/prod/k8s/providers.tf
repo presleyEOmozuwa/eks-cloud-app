@@ -2,8 +2,8 @@ data "terraform_remote_state" "aws" {
   backend = "s3"
 
   config = {
-    bucket = "presley-terraform-state-2026"
-    key    = "dev/terraform.tfstate"
+    bucket = "presley-terraform-state-prod-2026"
+    key    = "prod/terraform.tfstate"
     region = "us-east-1"
   }
 }
