@@ -17,8 +17,8 @@ on:
         value: ${{ jobs.aws.outputs.role }} 
 
 permissions:
-id-token: write
-contents: read
+  id-token: write
+  contents: read
 
 jobs:
   #  AWS INFRASTRUCTURE
