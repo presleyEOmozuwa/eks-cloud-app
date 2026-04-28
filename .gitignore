@@ -4,9 +4,9 @@
 .pnp.js
 **/.git
 
-**/infra/envs/*/.terraform
-**/infra/envs/*/.terraform.lock.hcl
-**/infra/envs/*/terraform.tfvars
+**/infra/envs/**/.terraform
+**/infra/envs/**/.terraform.lock.hcl
+**/infra/envs/**/terraform.tfvars
 
 
 # testing

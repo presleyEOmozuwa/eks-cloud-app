@@ -8,79 +8,125 @@ on:
         type: string
     outputs:
       backend_repo:
-        value: ${{ jobs.tf.outputs.backend_repo }}
+        value: ${{ jobs.aws.outputs.backend_repo }}
       frontend_repo:
-        value: ${{ jobs.tf.outputs.frontend_repo }}
+        value: ${{ jobs.aws.outputs.frontend_repo }}
       cluster_name: 
-        value: ${{ jobs.tf.outputs.cluster_name }}  
+        value: ${{ jobs.aws.outputs.cluster_name }}  
       role: 
-        value: ${{ jobs.tf.outputs.role }} 
-        
+        value: ${{ jobs.aws.outputs.role }} 
 
 permissions:
-  id-token: write
-  contents: read
+id-token: write
+contents: read
 
 jobs:
-  tf:
-    runs-on: ubuntu-latest
-    env:
-      TF_VAR_project: ${{ secrets.TF_VAR_PROJECT }}
-      TF_VAR_region: ${{ secrets.TF_VAR_REGION }}
-      TF_VAR_github_org: ${{ secrets.TF_VAR_GITHUB_ORG }}
-      TF_VAR_github_repo: ${{ secrets.TF_VAR_GITHUB_REPO }}
-      TF_VAR_subnet_ids: ${{ secrets.TF_VAR_SUBNET_IDS }}
-      TF_VAR_public_subnet_tags_1: '{ "Name": "public-subnet-1-${{ inputs.environment }}" }'
-      TF_VAR_public_subnet_tags_2: '{ "Name": "public-subnet-2-${{ inputs.environment }}" }'
-      TF_VAR_igw_tags: '{ "Name": "igw-${{ inputs.environment }}" }'
-      TF_VAR_rt_tags: '{ "Name": "rt-${{ inputs.environment }}" }'
-      TF_VAR_sg_tags: '{ "Name": "sg-${{ inputs.environment }}" }'
 
-    defaults:
-      run:
-        working-directory: ./infra/envs/${{ inputs.environment }} 
+# -----------------------------
 
-    outputs:
-      backend_repo: ${{ steps.out.outputs.backend_repo }}
-      frontend_repo: ${{ steps.out.outputs.frontend_repo }}
-      cluster_name: ${{ steps.out.outputs.cluster_name }}
-      role: ${{ steps.role_ID.outputs.deploy_role_arn }}
+# 1. AWS INFRASTRUCTURE
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-       
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
-          aws-region: us-east-1     
-        
-      - name: Configure Terraform  
-        uses: hashicorp/setup-terraform@v3
+# -----------------------------
 
-      - name: Terraform Init
-        run: terraform init
+aws:
+runs-on: ubuntu-latest
+env:
+  TF_VAR_project: ${{ secrets.TF_VAR_PROJECT }}
+  TF_VAR_region: ${{ secrets.TF_VAR_REGION }}
+  TF_VAR_github_org: ${{ secrets.TF_VAR_GITHUB_ORG }}
+  TF_VAR_github_repo: ${{ secrets.TF_VAR_GITHUB_REPO }}
+  TF_VAR_subnet_ids: ${{ secrets.TF_VAR_SUBNET_IDS }}
+  TF_VAR_public_subnet_tags_1: '{ "Name": "public-subnet-1-${{ inputs.environment }}" }'
+  TF_VAR_public_subnet_tags_2: '{ "Name": "public-subnet-2-${{ inputs.environment }}" }'
+  TF_VAR_igw_tags: '{ "Name": "igw-${{ inputs.environment }}" }'
+  TF_VAR_rt_tags: '{ "Name": "rt-${{ inputs.environment }}" }'
+  TF_VAR_sg_tags: '{ "Name": "sg-${{ inputs.environment }}" }'
 
-      - name: Terraform Validate
-        run: terraform validate  
+defaults:
+  run:
+    working-directory: ./infra/envs/${{ inputs.environment }}/aws
 
-      - name: Terraform Plan
-        run: terraform plan -var "environment=${{ inputs.environment }}" -input=false
-          
-      - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve \
-            -var "environment=${{ inputs.environment }}" -input=false
+outputs:
+  cluster_name: ${{ steps.outputs.outputs.cluster_name }}
+  backend_repo: ${{ steps.outputs.outputs.backend_repo }}
+  frontend_repo: ${{ steps.outputs.outputs.frontend_repo }}
+  role: ${{ steps.role_ID.outputs.deploy_role_arn }}
 
-      - name: Export ECR URLs output
-        id: out
-        run: |
-          echo "backend_repo=$(terraform output -raw backend_repo_url -no-color)" >> $GITHUB_OUTPUT
-          echo "frontend_repo=$(terraform output -raw frontend_repo_url -no-color)" >> $GITHUB_OUTPUT
-          echo "cluster_name=$(terraform output -raw cluster_name -no-color)" >> $GITHUB_OUTPUT
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
 
-      - name: Export role output based on branch
-        id: role_ID
-        run: |
-          echo "deploy_role_arn=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT    
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
+      aws-region: us-east-1
+
+  - name: Configure Terraform
+    uses: hashicorp/setup-terraform@v3
+
+  - name: Terraform Init
+    run: terraform init
+
+  - name: Terraform Validate
+    run: terraform validate
+
+  - name: Terraform Plan
+    run: terraform plan -input=false
+
+  - name: Terraform Apply
+    run: terraform apply -auto-approve -input=false
+
+  - name: Export Outputs
+    id: outputs
+    run: |
+      echo "cluster_name=$(terraform output -raw cluster_name)" >> $GITHUB_OUTPUT
+      echo "backend_repo=$(terraform output -raw backend_repo_url)" >> $GITHUB_OUTPUT
+      echo "frontend_repo=$(terraform output -raw frontend_repo_url)" >> $GITHUB_OUTPUT
+
+  - name: Export role output based on branch
+    id: role_ID
+    run: |
+      echo "deploy_role_arn=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT
+
+# -----------------------------
+
+# 2. KUBERNETES (NAMESPACES, RBAC)
+
+# -----------------------------
+
+k8s:
+runs-on: ubuntu-latest
+needs: aws 
+
+defaults:
+  run:
+    working-directory: ./infra/envs/${{ inputs.environment }}/k8s
+
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+
+  - name: Configure AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: ${{ secrets.AWS_BOOTSTRAP_ROLE }}
+      aws-region: us-east-1
+
+  - name: Configure Terraform
+    uses: hashicorp/setup-terraform@v3
+
+  - name: Terraform Init
+    run: terraform init
+
+  - name: Terraform Validate
+    run: terraform validate
+
+  - name: Terraform Plan
+    run: terraform plan -var "environment=${{ inputs.environment }}" -input=false
+
+  - name: Terraform Apply
+    run: |
+      terraform apply -auto-approve \
+        -var "environment=${{ inputs.environment }}" -input=false
+   

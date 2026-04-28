@@ -1,22 +1,18 @@
-terraform {
-  required_version = ">= 1.5.0"
+data "terraform_remote_state" "aws" {
+  backend = "s3"
 
-  backend "s3" {
+  config = {
     bucket = "presley-terraform-state-2026"
     key    = "dev/terraform.tfstate"
     region = "us-east-1"
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
-}
-
 provider "kubernetes" {
-  host = module.eks.endpoint
+  host = data.terraform_remote_state.aws.outputs.cluster_endpoint
 
   cluster_ca_certificate = base64decode(
-    module.eks.cluster_ca
+    data.terraform_remote_state.aws.outputs.cluster_ca
   )
 
   exec {
@@ -26,7 +22,7 @@ provider "kubernetes" {
       "eks",
       "get-token",
       "--cluster-name",
-      module.eks.cluster_name
+      data.terraform_remote_state.aws.outputs.cluster_name
     ]
   }
 }
