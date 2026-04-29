@@ -16,6 +16,10 @@ resource "aws_eks_cluster" "main" {
   role_arn = var.eks_role_arn
   version  = "1.31"
 
+  access_config {
+    authentication_mode = "API_AND_CONFIG_MAP"
+  }
+
   vpc_config {
     subnet_ids              = var.subnet_ids
     endpoint_private_access = true
