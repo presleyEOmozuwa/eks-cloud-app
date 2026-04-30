@@ -71,11 +71,13 @@ resource "aws_eks_node_group" "main" {
 # EKS ACCESS ENTRY (SINGLE SOURCE OF TRUTH)
 #############################################
 
-data "aws_caller_identity" "current" {}
+data "aws_iam_role" "github_actions" {
+  name = "github-actions-bootstrap-role"
+}
 
 resource "aws_eks_access_entry" "cicd" {
   cluster_name  = aws_eks_cluster.main.name
-  principal_arn = data.aws_caller_identity.current.arn
+  principal_arn = data.aws_iam_role.github_actions.arn
   type          = "STANDARD"
 }
 
@@ -85,7 +87,7 @@ resource "aws_eks_access_entry" "cicd" {
 
 resource "aws_eks_access_policy_association" "cicd_admin" {
   cluster_name  = aws_eks_cluster.main.name
-  principal_arn = data.aws_caller_identity.current.arn
+  principal_arn = data.aws_iam_role.github_actions.arn
 
   policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
