@@ -177,7 +177,7 @@ resource "aws_iam_policy" "permission_boundary" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "aws:RequestedRegion" = ["us-east-1", "us-west-2"]
+            "aws:RequestedRegion" = ["us-east-1a", "us-east-1b"]
           }
         }
       },

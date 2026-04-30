@@ -69,6 +69,7 @@ resource "aws_eks_node_group" "main" {
 
 #############################################
 # EKS ACCESS ENTRY (SINGLE SOURCE OF TRUTH)
+“This IAM role ARN is allowed to exist as an identity inside this Kubernetes cluster.”
 #############################################
 
 resource "aws_eks_access_entry" "cicd" {
