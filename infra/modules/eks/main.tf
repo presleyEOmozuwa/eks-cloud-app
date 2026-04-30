@@ -73,8 +73,25 @@ resource "aws_eks_node_group" "main" {
 
 resource "aws_eks_access_entry" "cicd" {
   for_each = var.cicd_role_arns
-
+  
   cluster_name  = aws_eks_cluster.main.name
   principal_arn = each.value
   type          = "STANDARD"
+}
+
+#############################################
+# EKS ACCESS POLICY ASSOCIATION
+#############################################
+
+resource "aws_eks_access_policy_association" "cicd_admin" {
+  for_each = var.cicd_role_arns
+
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = each.value
+
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
 }
