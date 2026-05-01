@@ -21,6 +21,7 @@ jobs:
     with:
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}
       frontend_repo: ${{ needs.terraform.outputs.frontend_repo }}
+      role: ${{ needs.terraform.outputs.role }}
   
   deploy:
     needs: [terraform, build]
@@ -31,3 +32,4 @@ jobs:
       image_tag: ${{ needs.build.outputs.image_tag }}
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}
       frontend_repo: ${{ needs.terraform.outputs.frontend_repo }}
+      role: ${{ needs.terraform.outputs.role }}
