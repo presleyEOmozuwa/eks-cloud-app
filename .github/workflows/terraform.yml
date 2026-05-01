@@ -13,8 +13,6 @@ on:
         value: ${{ jobs.aws.outputs.frontend_repo }}
       cluster_name: 
         value: ${{ jobs.aws.outputs.cluster_name }}  
-      role: 
-        value: ${{ jobs.aws.outputs.role }} 
 
 permissions:
   id-token: write
