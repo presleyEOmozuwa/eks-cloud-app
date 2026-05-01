@@ -8,9 +8,9 @@ on:
         type: string
     outputs:
       backend_repo:
-        value: ${{ jobs.aws.outputs.backend_repo }}
+        value: ${{ jobs.aws_infra.outputs.backend_repo }}
       frontend_repo:
-        value: ${{ jobs.aws.outputs.frontend_repo }}
+        value: ${{ jobs.aws_infra.outputs.frontend_repo }}
       cluster_name: 
         value: ${{ jobs.aws.outputs.cluster_name }}  
 
