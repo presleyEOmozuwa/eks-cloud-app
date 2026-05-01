@@ -12,7 +12,9 @@ on:
       frontend_repo:
         value: ${{ jobs.aws_infra.outputs.frontend_repo }}
       cluster_name: 
-        value: ${{ jobs.aws.outputs.cluster_name }}  
+        value: ${{ jobs.aws_infra.outputs.cluster_name }}  
+      role: 
+        value: ${{ jobs.aws_infra.outputs.role }} 
 
 permissions:
   id-token: write
@@ -43,6 +45,7 @@ jobs:
       cluster_name: ${{ steps.outputs.outputs.cluster_name }}
       backend_repo: ${{ steps.outputs.outputs.backend_repo }}
       frontend_repo: ${{ steps.outputs.outputs.frontend_repo }}
+      role: ${{ steps.role_ID.outputs.deploy_role_arn }}
 
     steps:
       - name: Checkout
@@ -79,7 +82,7 @@ jobs:
       - name: Export role output based on branch
         id: role_ID
         run: |
-          echo "deploy_role_arn=$(terraform output -raw role -no-color)" >> $GITHUB_OUTPUT
+          echo "deploy_role_arn=$(terraform output -raw deploy_role_arn -no-color)" >> $GITHUB_OUTPUT
 
 
   #  KUBERNETES (NAMESPACES, RBAC)

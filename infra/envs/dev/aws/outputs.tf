@@ -13,3 +13,11 @@ output "cluster_ca" {
 output "deploy_role_arn" {
   value = module.iam.deploy_role_arn
 }
+
+output "frontend_repo_url" {
+  value = module.ecr.frontend_repo_url
+}
+
+output "backend_repo_url" {
+  value = module.ecr.backend_repo_url
+}
