@@ -45,7 +45,6 @@ jobs:
       cluster_name: ${{ steps.outputs.outputs.cluster_name }}
       backend_repo: ${{ steps.outputs.outputs.backend_repo }}
       frontend_repo: ${{ steps.outputs.outputs.frontend_repo }}
-      role: ${{ steps.role_ID.outputs.deploy_role_arn }}
 
     steps:
       - name: Checkout
