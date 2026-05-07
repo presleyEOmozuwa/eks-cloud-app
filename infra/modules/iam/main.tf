@@ -170,26 +170,13 @@ resource "aws_iam_policy" "permission_boundary" {
         Resource = "*"
       },
       
-      # 🌍 REGION LOCK
+      #########################################
+      # ✅ ALLOW EVERYTHING ELSE
+      #########################################
       {
         Effect = "Allow"
         Action = "*"
         Resource = "*"
-        Condition = {
-          StringEquals = {
-            "aws:RequestedRegion" = ["us-east-1a", "us-east-1b"]
-          }
-        }
-      },
-      {
-         "Effect": "Deny",
-         "Action": "*",
-         "Resource": "*",
-         "Condition": {
-          "StringNotEquals": {
-            "aws:RequestedRegion": ["us-east-1", "us-west-2"]
-          }
-         }
       }
     ]
   })
@@ -249,14 +236,6 @@ resource "aws_iam_policy" "cicd_eks" {
           "eks:DescribeCluster"
         ]
         Resource = "*"
-      },
-
-      {
-        Effect = "Allow"
-        Action = [
-          "sts:GetCallerIdentity"
-        ]
-        Resource = "*"
       }
     ]
   })
@@ -277,7 +256,8 @@ resource "aws_iam_policy" "cicd_ecr" {
       {
         Effect = "Allow"
         Action = [
-          "ecr:GetAuthorizationToken"
+          "ecr:GetAuthorizationToken",
+          "sts:GetCallerIdentity"
         ]
         Resource = "*"
       },
