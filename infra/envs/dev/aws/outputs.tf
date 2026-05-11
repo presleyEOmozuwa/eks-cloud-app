@@ -21,3 +21,11 @@ output "frontend_repo_url" {
 output "backend_repo_url" {
   value = module.ecr.backend_repo_url
 }
+
+output "reactapp_repo_name" {
+  value = module.ecr.reactapp_repo_name
+}
+
+output "nodeapp_repo_name" {
+  value = module.ecr.nodeapp_repo_name
+}
