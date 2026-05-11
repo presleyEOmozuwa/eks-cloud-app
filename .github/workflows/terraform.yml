@@ -8,13 +8,13 @@ on:
         type: string
     outputs:
       backend_repo:
-        value: ${{ jobs.aws_infra.outputs.backend_repo }}
+        value: ${{ jobs.aws_infra.outputs.backend_repo }}/${{ BACKEND_REPO_NAME }}
       frontend_repo:
-        value: ${{ jobs.aws_infra.outputs.frontend_repo }}
+        value: ${{ jobs.aws_infra.outputs.frontend_repo }}/${{ FRONTEND_REPO_NAME }}
       cluster_name: 
         value: ${{ jobs.aws_infra.outputs.cluster_name }}  
       role: 
-        value: ${{ jobs.aws_infra.outputs.role }} 
+        value: ${{ jobs.aws_infra.outputs.role }}     
 
 permissions:
   id-token: write
