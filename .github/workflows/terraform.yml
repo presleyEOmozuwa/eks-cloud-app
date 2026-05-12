@@ -8,9 +8,9 @@ on:
         type: string
     outputs:
       backend_repo:
-        value: ${{ jobs.aws_infra.outputs.backend_repo }}/${{ secrets.BACKEND_REPO_NAME }}
+        value: ${{ jobs.aws_infra.outputs.backend_repo }}/myapp-dev-node
       frontend_repo:
-        value: ${{ jobs.aws_infra.outputs.frontend_repo }}/${{ secrets.FRONTEND_REPO_NAME }}
+        value: ${{ jobs.aws_infra.outputs.frontend_repo }}/myapp-dev-react
       cluster_name: 
         value: ${{ jobs.aws_infra.outputs.cluster_name }}  
       role: 
