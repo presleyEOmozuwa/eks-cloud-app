@@ -15,6 +15,7 @@ jobs:
     with:
       environment: "dev"
     secrets: inherit
+  
   build:
     needs: terraform
     uses: ./.github/workflows/build.yml
@@ -22,6 +23,7 @@ jobs:
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}
       frontend_repo: ${{ needs.terraform.outputs.frontend_repo }}
       role: ${{ needs.terraform.outputs.role }}
+    secrets: inherit
   
   deploy:
     needs: [terraform, build]
@@ -33,3 +35,4 @@ jobs:
       backend_repo: ${{ needs.terraform.outputs.backend_repo }}
       frontend_repo: ${{ needs.terraform.outputs.frontend_repo }}
       role: ${{ needs.terraform.outputs.role }}
+    secrets: inherit  
