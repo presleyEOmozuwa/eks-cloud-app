@@ -119,68 +119,6 @@ data "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
 }
 
-#############################################
-# IAM PERMISSION BOUNDARY (ZERO ESCALATION)
-#############################################
-
-resource "aws_iam_policy" "permission_boundary" {
-  name = "ci-cd-boundary-deny-escalation"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-
-      # 🚨 IAM ESCALATION BLOCK
-      {
-        Effect = "Deny"
-        Action = [
-          "iam:CreateAccessKey",
-          "iam:CreateUser",
-          "iam:CreateRole",
-          "iam:AttachRolePolicy",
-          "iam:AttachUserPolicy",
-          "iam:PutRolePolicy",
-          "iam:PutUserPolicy",
-          "iam:UpdateAssumeRolePolicy"
-        ]
-        Resource = "*"
-      },
-      
-      {
-         "Effect": "Deny",
-         "Action": "iam:PassRole",
-         "Resource": "*",
-         "Condition": {
-           "StringNotLike": {
-            "iam:PassedToService": [
-              "eks.amazonaws.com",
-              "ecs-tasks.amazonaws.com"
-            ]
-           }
-         }
-      },
-      
-      # 🚨 OIDC / IDENTITY PROTECTION
-      {
-        Effect = "Deny"
-        Action = [
-          "iam:DeleteOpenIDConnectProvider",
-          "iam:UpdateOpenIDConnectProvider"
-        ]
-        Resource = "*"
-      },
-      
-      #########################################
-      # ✅ ALLOW EVERYTHING ELSE
-      #########################################
-      {
-        Effect = "Allow"
-        Action = "*"
-        Resource = "*"
-      }
-    ]
-  })
-}
 
 #############################################
 # CI/CD ROLE (DEPLOY - ENVIRONMENT GATED)
@@ -215,8 +153,7 @@ resource "aws_iam_role" "cicd_deploy" {
       }
     }]
   })
-
-  permissions_boundary = aws_iam_policy.permission_boundary.arn
+  
 }
 
 #############################################
